@@ -64,20 +64,27 @@ public class ServiceInstancesChangedListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstancesChangedListener.class);
 
+    // 所有的服务名称
     protected final Set<String> serviceNames;
+    // 获取所有服务信息的接口
     protected final ServiceDiscovery serviceDiscovery;
+    // 服务的URL
     protected URL url;
+    // zookeeper信息发生变化时的监听器
     protected Map<String, Set<NotifyListener>> listeners;
     protected ConcurrentLinkedQueue<NotifyListenerWithKey> listenerQueue;
 
     protected AtomicBoolean destroyed = new AtomicBoolean(false);
 
+    // 所有的服务实例
     protected Map<String, List<ServiceInstance>> allInstances;
+    // 所有服务的URL
     protected Map<String, Object> serviceUrls;
-
+    //最后一次刷新服务的事件
     private volatile long lastRefreshTime;
     private final Semaphore retryPermission;
     private volatile ScheduledFuture<?> retryFuture;
+    //定时线程池
     private final ScheduledExecutorService scheduler;
     private volatile boolean hasEmptyMetadata;
 
@@ -103,6 +110,7 @@ public class ServiceInstancesChangedListener {
             return;
         }
 
+        // 根据事件实例刷新instance
         refreshInstance(event);
 
         if (logger.isDebugEnabled()) {
@@ -182,6 +190,11 @@ public class ServiceInstancesChangedListener {
         this.notifyAddressChanged();
     }
 
+    /**
+     * 增加监听器
+     * @param serviceKey
+     * @param listener
+     */
     public synchronized void addListenerAndNotify(String serviceKey, NotifyListener listener) {
         // Add to global listeners
         if (!this.listeners.containsKey(serviceKey)) {
@@ -274,13 +287,20 @@ public class ServiceInstancesChangedListener {
         return false;
     }
 
+    /**
+     * 刷新服务实例
+     * @param event
+     */
     private void refreshInstance(ServiceInstancesChangedEvent event) {
         if (event instanceof RetryServiceInstancesChangedEvent) {
             return;
         }
+        // 获取服务名
         String appName = event.getServiceName();
+        // 获取所有的实例
         List<ServiceInstance> appInstances = event.getServiceInstances();
         logger.info("Received instance notification, serviceName: " + appName + ", instances: " + appInstances.size());
+        // 放置所有的实例
         allInstances.put(appName, appInstances);
         lastRefreshTime = System.currentTimeMillis();
     }
@@ -312,10 +332,16 @@ public class ServiceInstancesChangedListener {
         return localServiceToRevisions;
     }
 
+    /**
+     * 选择实例，负载均衡
+     * @param instances
+     * @return
+     */
     private ServiceInstance selectInstance(List<ServiceInstance> instances) {
         if (instances.size() == 1) {
             return instances.get(0);
         }
+        // 随机选择一个实例
         return instances.get(ThreadLocalRandom.current().nextInt(0, instances.size()));
     }
 

@@ -20,6 +20,7 @@ import java.util.Collections;
 
 /**
  * A retry task when is failed.
+ * 重试任务失败事件
  */
 public class RetryServiceInstancesChangedEvent extends ServiceInstancesChangedEvent {
 

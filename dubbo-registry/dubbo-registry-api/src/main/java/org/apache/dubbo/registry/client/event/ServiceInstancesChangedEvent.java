@@ -26,6 +26,7 @@ import static java.util.Collections.unmodifiableList;
 
 /**
  * An event raised after the {@link ServiceInstance instances} of one service has been changed.
+ * 服务实例改变事件
  *
  * @see ServiceInstancesChangedListener
  * @since 2.7.5
