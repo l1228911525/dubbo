@@ -92,6 +92,13 @@ public class StandardMetadataServiceURLBuilder implements MetadataServiceURLBuil
         return Collections.singletonList(url);
     }
 
+    /**
+     * 使用service name、host、params来生成url
+     * @param serviceName
+     * @param host
+     * @param params
+     * @return
+     */
     private URL generateWithMetadata(String serviceName, String host, Map<String, String> params) {
         String protocol = params.get(PROTOCOL_KEY);
         int port = Integer.parseInt(params.get(PORT_KEY));
@@ -112,6 +119,13 @@ public class StandardMetadataServiceURLBuilder implements MetadataServiceURLBuil
         return urlBuilder.build();
     }
 
+    /**
+     * 使用service name、host，不使用参数来生成url
+     * @param serviceName
+     * @param host
+     * @param instancePort
+     * @return
+     */
     private URL generateUrlWithoutMetadata(String serviceName, String host, Integer instancePort) {
         Integer port = metadataServicePort;
         if (port == null || port < 1) {
@@ -150,6 +164,11 @@ public class StandardMetadataServiceURLBuilder implements MetadataServiceURLBuil
      *
      * @param serviceInstance the instance of {@link ServiceInstance}
      * @return non-null {@link Map}, the key is {@link URL#getProtocol() the protocol of URL}, the value is
+     */
+    /**
+     * 根据service instance来获取参数
+     * @param serviceInstance
+     * @return
      */
     private Map<String, String> getMetadataServiceURLsParams(ServiceInstance serviceInstance) {
         Map<String, String> metadata = serviceInstance.getMetadata();

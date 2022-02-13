@@ -45,6 +45,13 @@ public class RestProtocolSubscribedURLsSynthesizer implements SubscribedURLsSynt
                 "rest".equals(subscribedURL.getParameter(PROTOCOL_KEY));
     }
 
+    /**
+     * 将consumer的订阅url封装成service的url list，因为单个订阅url，可以有多台服务器提供
+     * @param subscribedURL    the original subscribed {@link URL} from the execution of`
+     *                         {@link Registry#subscribe(URL, NotifyListener)} method
+     * @param serviceInstances
+     * @return
+     */
     @Override
     public List<URL> synthesize(URL subscribedURL, Collection<ServiceInstance> serviceInstances) {
 

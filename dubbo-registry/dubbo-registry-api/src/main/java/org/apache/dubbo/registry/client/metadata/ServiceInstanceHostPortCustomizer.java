@@ -33,6 +33,7 @@ import java.util.SortedSet;
 
 /**
  * The {@link ServiceInstanceCustomizer} to customize the {@link ServiceInstance#getPort() port} of service instance.
+ * 根据urls来获取host和port
  */
 public class ServiceInstanceHostPortCustomizer implements ServiceInstanceCustomizer {
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceHostPortCustomizer.class);

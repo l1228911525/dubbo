@@ -39,6 +39,10 @@ import static org.apache.dubbo.registry.client.metadata.ServiceInstanceMetadataU
  *
  * @since 2.7.5
  */
+
+/**
+ * 将port和protocols放入service instance中
+ */
 public class ProtocolPortsMetadataCustomizer implements ServiceInstanceCustomizer {
 
     @Override
@@ -51,6 +55,7 @@ public class ProtocolPortsMetadataCustomizer implements ServiceInstanceCustomize
         Map<String, Integer> protocols = new HashMap<>();
         Set<URL> urls = new HashSet<>();
         Map<String, SortedSet<URL>> exportedURLS = metadataInfo.getExportedServiceURLs();
+        // 解析url获取相关的port和protocol，然后获取到相关的protocols的信息
         for (Map.Entry<String, SortedSet<URL>> entry : exportedURLS.entrySet()) {
             if (entry.getValue() != null) {
                 urls.addAll(entry.getValue());
@@ -61,7 +66,7 @@ public class ProtocolPortsMetadataCustomizer implements ServiceInstanceCustomize
             // TODO, same protocol listen on different ports will override with each other.
             protocols.put(url.getProtocol(), url.getPort());
         });
-
+        // 将protocols相关信息放入serviceInstance的metadata中
         if (protocols.size() > 0) {// set endpoints only for multi-protocol scenario
             setEndpoints(serviceInstance, protocols);
         }

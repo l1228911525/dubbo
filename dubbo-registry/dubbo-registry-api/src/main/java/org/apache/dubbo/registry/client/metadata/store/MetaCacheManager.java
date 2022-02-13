@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Metadata cache with limited size that uses LRU expiry policy.
+ * 服务实例元数据缓存管理器
  */
 public class MetaCacheManager implements ScopeModelAware, Disposable {
     private static final Logger logger = LoggerFactory.getLogger(MetaCacheManager.class);
@@ -46,9 +47,15 @@ public class MetaCacheManager implements ScopeModelAware, Disposable {
     private static final long INTERVAL = 60L;
     private ScheduledExecutorService executorService;
 
+    // 本地文件与缓存的交互对象，就是将dubbo信息持久化
     protected FileCacheStore cacheStore;
     protected LRUCache<String, MetadataInfo> cache;
 
+    /**
+     * 单例
+     * @param scopeModel dubbo自己实现的IOC容器
+     * @return
+     */
     public static MetaCacheManager getInstance(ScopeModel scopeModel) {
         return scopeModel.getBeanFactory().getOrRegisterBean(MetaCacheManager.class);
     }
@@ -69,6 +76,7 @@ public class MetaCacheManager implements ScopeModelAware, Disposable {
         }
 
         String rawEntrySize = System.getProperty("dubbo.meta.cache.entrySize");
+        // 入口大小
         int entrySize = StringUtils.parseInteger(rawEntrySize);
         entrySize = (entrySize == 0 ? DEFAULT_ENTRY_SIZE : entrySize);
 
@@ -76,6 +84,7 @@ public class MetaCacheManager implements ScopeModelAware, Disposable {
 
         try {
             cacheStore = new FileCacheStore(filePath, fileName);
+            // 从文件中读取数据到缓存
             Map<String, String> properties = cacheStore.loadCache(entrySize);
             logger.info("Successfully loaded meta cache from file " + fileName + ", entries " + properties.size());
             for (Map.Entry<String, String> entry : properties.entrySet()) {
@@ -101,6 +110,10 @@ public class MetaCacheManager implements ScopeModelAware, Disposable {
         cache.put(key, metadataInfo);
     }
 
+    /**
+     * 获取所有的缓存信息，需要上锁
+     * @return
+     */
     public Map<String, MetadataInfo> getAll() {
         if (cache.isEmpty()) {
             return Collections.emptyMap();
@@ -133,6 +146,9 @@ public class MetaCacheManager implements ScopeModelAware, Disposable {
         }
     }
 
+    /**
+     * 这个将缓存的内容写到文件中，在上面使用定时任务线程池来运行
+     */
     protected static class CacheRefreshTask implements Runnable {
         private final FileCacheStore cacheStore;
         private final LRUCache<String, MetadataInfo> cache;

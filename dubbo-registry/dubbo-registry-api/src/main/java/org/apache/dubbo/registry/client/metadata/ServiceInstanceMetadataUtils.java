@@ -108,6 +108,11 @@ public class ServiceInstanceMetadataUtils {
         return gson.toJson(params);
     }
 
+    /**
+     * 根据提供者的url来获取参数
+     * @param providerURL
+     * @return
+     */
     private static Map<String, String> getParams(URL providerURL) {
         Map<String, String> params = new LinkedHashMap<>();
         setDefaultParams(params, providerURL);

@@ -48,6 +48,10 @@ import static org.apache.dubbo.common.constants.CommonConstants.APPLICATION_KEY;
  *
  *
  */
+
+/**
+ * 获取ServiceInstance的参数
+ */
 public class ServiceInstanceMetadataCustomizer implements ServiceInstanceCustomizer {
 
     @Override

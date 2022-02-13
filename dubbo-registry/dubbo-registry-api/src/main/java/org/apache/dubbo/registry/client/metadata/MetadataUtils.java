@@ -65,6 +65,13 @@ public class MetadataUtils {
         return metadataServiceProxies.computeIfAbsent(computeKey(instance), k -> referProxy(k, instance));
     }
 
+    /**
+     * 从URL中获取相关的服务，然后封装service definition。将service definition注册到meta data里面
+     * @param serviceName
+     * @param url
+     * @param scopeModel
+     * @param applicationModel
+     */
     public static void publishServiceDefinition(String serviceName, URL url, ModuleModel scopeModel, ApplicationModel applicationModel) {
         if (getMetadataReports(applicationModel).size() == 0) {
             String msg = "Remote Metadata Report Server not hasn't been configured or unavailable . Unable to get Metadata from remote!";
@@ -73,7 +80,9 @@ public class MetadataUtils {
 
         try {
             String side = url.getSide();
+            // provider
             if (PROVIDER_SIDE.equalsIgnoreCase(side)) {
+                // 获取service name相关的服务描述
                 ServiceDescriptor serviceDescriptor = scopeModel.getServiceRepository().getService(serviceName);
                 if (serviceDescriptor == null) {
                     return;
@@ -113,6 +122,11 @@ public class MetadataUtils {
         }
     }
 
+    /**
+     * 从service instance中计算出metadataServiceProxies的key
+     * @param serviceInstance
+     * @return
+     */
     public static String computeKey(ServiceInstance serviceInstance) {
         return serviceInstance.getServiceName() + "##" + serviceInstance.getAddress() + "##" +
                 ServiceInstanceMetadataUtils.getExportedServicesRevision(serviceInstance);
@@ -127,6 +141,12 @@ public class MetadataUtils {
         }
     }
 
+    /**
+     * 根据service instance来生成MetadataService
+     * @param key
+     * @param instance
+     * @return
+     */
     private static MetadataService referProxy(String key, ServiceInstance instance) {
         MetadataServiceURLBuilder builder;
         ExtensionLoader<MetadataServiceURLBuilder> loader = instance.getApplicationModel()
@@ -161,6 +181,13 @@ public class MetadataUtils {
         return metadataServiceProxies;
     }
 
+    /**
+     * 获取远程的meta data
+     * @param revision
+     * @param instance
+     * @param metadataReport
+     * @return
+     */
     public static MetadataInfo getRemoteMetadata(String revision, ServiceInstance instance, MetadataReport metadataReport) {
         String metadataType = ServiceInstanceMetadataUtils.getMetadataStorageType(instance);
         MetadataInfo metadataInfo = null;
