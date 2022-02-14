@@ -224,6 +224,9 @@ public abstract class AbstractRegistry implements Registry {
         }
     }
 
+    /**
+     * 读取文件内容
+     */
     private void loadProperties() {
         if (file != null && file.exists()) {
             InputStream in = null;
@@ -247,6 +250,11 @@ public abstract class AbstractRegistry implements Registry {
         }
     }
 
+    /**
+     * 获取缓存的URL list
+     * @param url
+     * @return
+     */
     public List<URL> getCacheUrls(URL url) {
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = (String) entry.getKey();
@@ -293,6 +301,10 @@ public abstract class AbstractRegistry implements Registry {
         return result;
     }
 
+    /**
+     * 注册
+     * @param url  Registration information , is not allowed to be empty, e.g: dubbo://10.20.153.10/org.apache.dubbo.foo.BarService?version=1.0.0&application=kylin
+     */
     @Override
     public void register(URL url) {
         if (url == null) {
@@ -306,6 +318,10 @@ public abstract class AbstractRegistry implements Registry {
         registered.add(url);
     }
 
+    /**
+     * 注销
+     * @param url Registration information , is not allowed to be empty, e.g: dubbo://10.20.153.10/org.apache.dubbo.foo.BarService?version=1.0.0&application=kylin
+     */
     @Override
     public void unregister(URL url) {
         if (url == null) {
@@ -380,6 +396,10 @@ public abstract class AbstractRegistry implements Registry {
         }
     }
 
+    /**
+     * 通知
+     * @param urls
+     */
     protected void notify(List<URL> urls) {
         if (CollectionUtils.isEmpty(urls)) {
             return;
@@ -453,6 +473,10 @@ public abstract class AbstractRegistry implements Registry {
         }
     }
 
+    /**
+     * 持久化到文件
+     * @param url
+     */
     private void saveProperties(URL url) {
         if (file == null) {
             return;

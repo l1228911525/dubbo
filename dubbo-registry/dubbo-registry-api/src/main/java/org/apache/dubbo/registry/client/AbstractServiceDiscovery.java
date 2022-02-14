@@ -43,6 +43,10 @@ import static org.apache.dubbo.registry.client.metadata.ServiceInstanceMetadataU
 /**
  * Each service discovery is bond to one application.
  */
+
+/**
+ * 服务注册的抽象类，具体的注册、注销、订阅等方法，在不同的注册中心，有不同的实现
+ */
 public abstract class AbstractServiceDiscovery implements ServiceDiscovery {
     private final Logger logger = LoggerFactory.getLogger(AbstractServiceDiscovery.class);
     private volatile boolean isDestroy;

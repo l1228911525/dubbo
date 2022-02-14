@@ -29,13 +29,14 @@ import static org.apache.dubbo.common.constants.CommonConstants.REGISTRY_DELAY_N
 
 /**
  * Defines the common operations of Service Discovery, extended and loaded by ServiceDiscoveryFactory
+ * 为服务发现，定义一些常用的操作
  */
 public interface ServiceDiscovery extends RegistryService, Prioritized {
-
+    // 注册服务
     void register() throws RuntimeException;
-
+    // 更新服务
     void update() throws RuntimeException;
-
+    // 注销服务
     void unregister() throws RuntimeException;
 
     /**
@@ -44,9 +45,9 @@ public interface ServiceDiscovery extends RegistryService, Prioritized {
      * @return non-null read-only {@link Set}
      */
     Set<String> getServices();
-
+    // 根据服务名来获取所有的服务实例
     List<ServiceInstance> getInstances(String serviceName) throws NullPointerException;
-
+    // 当实例发生变化是，增加服务实例
     default void addServiceInstancesChangedListener(ServiceInstancesChangedListener listener)
             throws NullPointerException, IllegalArgumentException {
     }
@@ -57,10 +58,11 @@ public interface ServiceDiscovery extends RegistryService, Prioritized {
      * @param listener
      * @throws IllegalArgumentException
      */
+    // 当ServiceInstancesChangedEvent发生时，删除服务实例
     default void removeServiceInstancesChangedListener(ServiceInstancesChangedListener listener)
             throws IllegalArgumentException {
     }
-
+    // 创建监听器
     default ServiceInstancesChangedListener createListener(Set<String> serviceNames) {
         return new ServiceInstancesChangedListener(serviceNames, this);
     }

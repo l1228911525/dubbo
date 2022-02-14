@@ -43,6 +43,10 @@ import static org.apache.dubbo.registry.Constants.REGISTRY_RETRY_PERIOD_KEY;
 /**
  * FailbackRegistry. (SPI, Prototype, ThreadSafe)
  */
+
+/**
+ * 服务注册-带有重试机制
+ */
 public abstract class FailbackRegistry extends AbstractRegistry {
 
     /*  retry task map */
@@ -129,6 +133,11 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         }
     }
 
+    /**
+     * 当订阅url失败时，就会把这个url放到订阅失败的map里面。
+     * @param url
+     * @param listener
+     */
     protected void addFailedSubscribed(URL url, NotifyListener listener) {
         Holder h = new Holder(url, listener);
         FailedSubscribedTask oldOne = failedSubscribed.get(h);
@@ -143,6 +152,11 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         }
     }
 
+    /**
+     * 移除订阅失败的url
+     * @param url
+     * @param listener
+     */
     public void removeFailedSubscribed(URL url, NotifyListener listener) {
         Holder h = new Holder(url, listener);
         FailedSubscribedTask f = failedSubscribed.remove(h);
@@ -152,6 +166,11 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         removeFailedUnsubscribed(url, listener);
     }
 
+    /**
+     * 增加失败注销的url
+     * @param url
+     * @param listener
+     */
     private void addFailedUnsubscribed(URL url, NotifyListener listener) {
         Holder h = new Holder(url, listener);
         FailedUnsubscribedTask oldOne = failedUnsubscribed.get(h);
@@ -202,6 +221,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         removeFailedUnregistered(url);
         try {
             // Sending a registration request to the server side
+            // 真实的订阅操作，不同的注册中心有不同的实现
             doRegister(url);
         } catch (Exception e) {
             Throwable t = e;
@@ -319,6 +339,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             }
 
             // Record a failed registration request to a failed list, retry regularly
+            // 将url放到失败订阅的map中，等定时线程池运行
             addFailedSubscribed(url, listener);
         }
     }

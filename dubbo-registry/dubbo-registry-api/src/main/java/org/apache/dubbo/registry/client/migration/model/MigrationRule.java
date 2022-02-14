@@ -73,6 +73,10 @@ import static org.apache.dubbo.registry.client.migration.MigrationRuleHandler.DU
  *    force: false
  *    step: FORCE_INTERFACE
  */
+
+/**
+ * 注册中心从dubbo 2迁徙到3
+ */
 public class MigrationRule {
     public static final MigrationRule INIT = new MigrationRule();
 

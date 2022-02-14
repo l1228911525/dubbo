@@ -26,6 +26,10 @@ import java.util.List;
  *
  * @see org.apache.dubbo.registry.RegistryService#subscribe(URL, NotifyListener)
  */
+
+/**
+ * 监听器
+ */
 public interface NotifyListener {
 
     /**
@@ -40,8 +44,13 @@ public interface NotifyListener {
      *
      * @param urls The list of registered information , is always not empty. The meaning is the same as the return value of {@link org.apache.dubbo.registry.RegistryService#lookup(URL)}.
      */
+    /**
+     * 当服务改变时，就会发起提醒功能
+     * @param urls
+     */
     void notify(List<URL> urls);
 
+    // 增加服务监听器
     default void addServiceListener(ServiceInstancesChangedListener instanceListener) {
     }
 

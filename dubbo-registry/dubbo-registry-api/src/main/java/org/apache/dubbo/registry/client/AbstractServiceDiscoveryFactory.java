@@ -33,6 +33,10 @@ import java.util.concurrent.ConcurrentMap;
  * @see ServiceDiscoveryFactory
  * @since 2.7.5
  */
+
+/**
+ * 服务注册的工厂类
+ */
 public abstract class AbstractServiceDiscoveryFactory implements ServiceDiscoveryFactory, ScopeModelAware {
 
     protected ApplicationModel applicationModel;

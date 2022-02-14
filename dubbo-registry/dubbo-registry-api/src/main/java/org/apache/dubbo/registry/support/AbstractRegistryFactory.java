@@ -37,6 +37,10 @@ import static org.apache.dubbo.rpc.cluster.Constants.REFER_KEY;
  *
  * @see org.apache.dubbo.registry.RegistryFactory
  */
+
+/**
+ * 服务注册工厂
+ */
 public abstract class AbstractRegistryFactory implements RegistryFactory, ScopeModelAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRegistryFactory.class);

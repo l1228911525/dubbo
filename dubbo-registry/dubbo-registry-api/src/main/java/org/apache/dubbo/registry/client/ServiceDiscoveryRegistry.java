@@ -68,6 +68,10 @@ import static org.apache.dubbo.registry.client.ServiceDiscoveryFactory.getExtens
  * - Maps interface to applications depending on ServiceNameMapping.
  * - Starts the new service discovery listener (InstanceListener) and makes NotifierListeners part of the InstanceListener.
  */
+
+/**
+ * 实现服务注册和服务发现的功能，因为继承于FailbackRegistry，所有有重试的能力
+ */
 public class ServiceDiscoveryRegistry extends FailbackRegistry {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
