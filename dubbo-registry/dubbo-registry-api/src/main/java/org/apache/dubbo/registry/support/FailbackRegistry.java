@@ -245,6 +245,10 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         }
     }
 
+    /**
+     * 注册失败重试
+     * @param url
+     */
     @Override
     public void reExportRegister(URL url) {
         if (!acceptable(url)) {

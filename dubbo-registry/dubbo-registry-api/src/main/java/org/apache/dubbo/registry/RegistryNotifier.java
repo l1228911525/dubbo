@@ -28,6 +28,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_DELAY_EXECUTE_TIMES;
 
+/**
+ * 注册提醒
+ */
 public abstract class RegistryNotifier {
 
     private static final Logger logger = LoggerFactory.getLogger(RegistryNotifier.class);

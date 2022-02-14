@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 
 /**
  * Application Level, used to collect Registries
+ * 注册管理器
  */
 public class RegistryManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryManager.class);
