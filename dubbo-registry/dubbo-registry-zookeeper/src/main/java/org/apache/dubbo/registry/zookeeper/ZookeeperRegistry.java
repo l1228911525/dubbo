@@ -69,6 +69,11 @@ public class ZookeeperRegistry extends CacheableFailbackRegistry {
 
     private ZookeeperClient zkClient;
 
+    /**
+     * zookeeper客户端连接到服务器
+     * @param url
+     * @param zookeeperTransporter
+     */
     public ZookeeperRegistry(URL url, ZookeeperTransporter zookeeperTransporter) {
         super(url);
         if (url.isAnyHost()) {
@@ -123,6 +128,10 @@ public class ZookeeperRegistry extends CacheableFailbackRegistry {
         }
     }
 
+    /**
+     * 服务注册
+     * @param url
+     */
     @Override
     public void doRegister(URL url) {
         try {
@@ -133,6 +142,10 @@ public class ZookeeperRegistry extends CacheableFailbackRegistry {
         }
     }
 
+    /**
+     * 服务注销
+     * @param url
+     */
     @Override
     public void doUnregister(URL url) {
         try {
@@ -143,6 +156,11 @@ public class ZookeeperRegistry extends CacheableFailbackRegistry {
         }
     }
 
+    /**
+     * 服务订阅-使用zookeeper的watcher的机制
+     * @param url
+     * @param listener
+     */
     @Override
     public void doSubscribe(final URL url, final NotifyListener listener) {
         try {
@@ -198,6 +216,11 @@ public class ZookeeperRegistry extends CacheableFailbackRegistry {
         }
     }
 
+    /**
+     * 取消订阅
+     * @param url
+     * @param listener
+     */
     @Override
     public void doUnsubscribe(URL url, NotifyListener listener) {
         checkDestroyed();

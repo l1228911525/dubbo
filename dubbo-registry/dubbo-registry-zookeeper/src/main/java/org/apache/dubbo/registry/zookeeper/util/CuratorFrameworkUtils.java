@@ -58,6 +58,12 @@ public abstract class CuratorFrameworkUtils {
             .build();
     }
 
+    /**
+     * 传入一个url，返回一个zookeeper的客户端
+     * @param connectionURL
+     * @return
+     * @throws Exception
+     */
     public static CuratorFramework buildCuratorFramework(URL connectionURL) throws Exception {
         CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
             .connectString(connectionURL.getBackupAddress())
@@ -77,6 +83,11 @@ public abstract class CuratorFrameworkUtils {
         return curatorFramework;
     }
 
+    /**
+     * 生成一个zookeeper的重试策略
+     * @param connectionURL
+     * @return
+     */
     public static RetryPolicy buildRetryPolicy(URL connectionURL) {
         int baseSleepTimeMs = BASE_SLEEP_TIME.getParameterValue(connectionURL);
         int maxRetries = MAX_RETRIES.getParameterValue(connectionURL);

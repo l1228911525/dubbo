@@ -42,6 +42,10 @@ import static org.apache.zookeeper.Watcher.Event.EventType.NodeDataChanged;
  *
  * @since 2.7.5
  */
+
+/**
+ * zookeeper的watcher，用来实现订阅功能，当路径发生改变就会通知相对于的监听器
+ */
 public class ZookeeperServiceDiscoveryChangeWatcher implements CuratorWatcher {
     private Set<ServiceInstancesChangedListener> listeners = new ConcurrentHashSet<>();
 
@@ -74,6 +78,11 @@ public class ZookeeperServiceDiscoveryChangeWatcher implements CuratorWatcher {
         };
     }
 
+    /**
+     * 当zookeeper server的数据发生改变时，会自动调用此方法
+     * @param event
+     * @throws Exception
+     */
     @Override
     public void process(WatchedEvent event) throws Exception {
         try {
@@ -85,8 +94,11 @@ public class ZookeeperServiceDiscoveryChangeWatcher implements CuratorWatcher {
 
         if (NodeChildrenChanged.equals(eventType) || NodeDataChanged.equals(eventType)) {
             if (shouldKeepWatching()) {
+                // 因为watcher只能使用一次，因此需要重新注册watcher
                 zookeeperServiceDiscovery.reRegisterWatcher(this);
+                // 获取名为serviceName的所有服务实例
                 List<ServiceInstance> instanceList = zookeeperServiceDiscovery.getInstances(serviceName);
+                //
                 notifier.notify(new ServiceInstancesChangedEvent(serviceName, instanceList));
             }
         }
