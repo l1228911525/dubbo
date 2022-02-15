@@ -289,6 +289,9 @@ public class DubboProtocol extends AbstractProtocol {
     }
 
     @Override
+    /**
+     * 具体的服务暴露，为url创建netty服务器或者其他的服务
+     */
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
         checkDestroyed();
         URL url = invoker.getUrl();
@@ -310,7 +313,7 @@ public class DubboProtocol extends AbstractProtocol {
 
             }
         }
-
+        // 创建netty服务器
         openServer(url);
         optimizeSerialization(url);
 

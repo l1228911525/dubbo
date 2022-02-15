@@ -111,6 +111,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
      * A {@link ProxyFactory} implementation that will generate a exported service proxy,the JavassistProxyFactory is its
      * default implementation
      */
+    /**
+     * 代理对象工厂
+     */
     private ProxyFactory proxyFactory;
 
     private ProviderModel providerModel;
@@ -130,8 +133,14 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     /**
      * The exported services
      */
+    /**
+     * 暴露的本地服务
+     */
     private final List<Exporter<?>> exporters = new ArrayList<Exporter<?>>();
 
+    /**
+     * 服务监听器
+     */
     private final List<ServiceListener> serviceListeners = new ArrayList<>();
 
     public ServiceConfig() {
@@ -170,6 +179,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     }
 
     @Override
+    /**
+     * 注销服务
+     */
     public void unexport() {
         if (!exported) {
             return;
@@ -209,6 +221,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     }
 
     @Override
+    /**
+     * 暴露服务
+     */
     public void export() {
         if (this.exported) {
             return;
@@ -561,11 +576,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         if (!SCOPE_NONE.equalsIgnoreCase(scope)) {
 
             // export to local if the config is not remote (export to remote only when config is remote)
+            // 暴露本地服务，使用injvm协议
             if (!SCOPE_REMOTE.equalsIgnoreCase(scope)) {
                 exportLocal(url);
             }
 
             // export to remote if the config is not local (export to local only when config is local)
+            // 暴露远程服务
             if (!SCOPE_LOCAL.equalsIgnoreCase(scope)) {
                 url = exportRemote(url, registryURLs);
                 if (!isGeneric(generic) && !isMetadataService(interfaceName)) {
@@ -579,6 +596,12 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         this.urls.add(url);
     }
 
+    /**
+     * 暴露远程服务
+     * @param url
+     * @param registryURLs
+     * @return
+     */
     private URL exportRemote(URL url, List<URL> registryURLs) {
         if (CollectionUtils.isNotEmpty(registryURLs)) {
             for (URL registryURL : registryURLs) {
@@ -592,6 +615,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 }
 
                 url = url.addParameterIfAbsent(DYNAMIC_KEY, registryURL.getParameter(DYNAMIC_KEY));
+                // 如果这个url要被监听，则将监听url加入url属性
                 URL monitorUrl = ConfigValidationUtils.loadMonitor(this, registryURL);
                 if (monitorUrl != null) {
                     url = url.putAttribute(MONITOR_KEY, monitorUrl);
@@ -611,6 +635,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                     }
                 }
 
+                // 暴露远程服务的具体操作
                 doExportUrl(registryURL.putAttribute(EXPORT_KEY, url), true);
             }
 
@@ -628,7 +653,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
+    // 暴露本地服务的方式：将本地服务的exporter放入本地服务的map中
     private void doExportUrl(URL url, boolean withMetaData) {
+        // 生成代理对象
         Invoker<?> invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, url);
         if (withMetaData) {
             invoker = new DelegateProviderMetaDataInvoker(invoker, this);

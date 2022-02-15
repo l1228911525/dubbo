@@ -112,6 +112,9 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
      * A {@link ProxyFactory} implementation that will generate a reference service's proxy,the JavassistProxyFactory is
      * its default implementation
      */
+    /**
+     * 生成代理类
+     */
     private ProxyFactory proxyFactory;
 
     private ConsumerModel consumerModel;
@@ -123,6 +126,9 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
 
     /**
      * The invoker of the reference service
+     */
+    /**
+     * reference 远程调用服务
      */
     private transient volatile Invoker<?> invoker;
 
