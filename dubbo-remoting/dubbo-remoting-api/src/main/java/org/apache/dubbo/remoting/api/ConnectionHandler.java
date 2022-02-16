@@ -29,6 +29,9 @@ import io.netty.util.AttributeKey;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * netty客户端的连接处理器
+ */
 @ChannelHandler.Sharable
 public class ConnectionHandler extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(ConnectionHandler.class);
@@ -55,6 +58,10 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter {
         reconnect(channel);
     }
 
+    /**
+     * 连接成功钩子函数
+     * @param ctx
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         ctx.fireChannelActive();

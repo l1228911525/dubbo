@@ -27,6 +27,9 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.util.List;
 
+/**
+ * netty服务器的handler
+ */
 public class PortUnificationServerHandler extends ByteToMessageDecoder {
 
     private final SslContext sslCtx;

@@ -54,23 +54,36 @@ import static org.apache.dubbo.common.constants.CommonConstants.SSL_ENABLED_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.THREADPOOL_KEY;
 import static org.apache.dubbo.remoting.api.NettyEventLoopFactory.socketChannelClass;
 
+/**
+ * 客户端连接管理
+ */
 public class Connection extends AbstractReferenceCounted {
 
     public static final AttributeKey<Connection> CONNECTION = AttributeKey.valueOf("connection");
     private static final Logger logger = LoggerFactory.getLogger(Connection.class);
     private static final Object CONNECTED_OBJECT = new Object();
+    // 服务器的url
     private final URL url;
+    // 连接超时
     private final int connectTimeout;
     private final WireProtocol protocol;
+    // 服务器ip地址
     private final InetSocketAddress remote;
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private final AtomicBoolean init = new AtomicBoolean(false);
     private final Promise<Void> closePromise = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
+    // 客户端的Channel
     private final AtomicReference<Channel> channel = new AtomicReference<>();
+    // 客户端
     private final Bootstrap bootstrap;
+    // 连接监听器，连接的结果
     private final ConnectionListener connectionListener = new ConnectionListener();
     private volatile Promise<Object> connectingPromise;
 
+    /**
+     * 根据url，客户端连接到服务器
+     * @param url
+     */
     public Connection(URL url) {
         url = ExecutorUtil.setThreadName(url, "DubboClientHandler");
         url = url.addParameterIfAbsent(THREADPOOL_KEY, DEFAULT_CLIENT_THREADPOOL);
@@ -89,6 +102,10 @@ public class Connection extends AbstractReferenceCounted {
         return closePromise;
     }
 
+    /**
+     * 创建netty客户端
+     * @return
+     */
     private Bootstrap create() {
         final Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(NettyEventLoopFactory.NIO_EVENT_LOOP_GROUP.get())
@@ -121,6 +138,10 @@ public class Connection extends AbstractReferenceCounted {
         return bootstrap;
     }
 
+    /**
+     * 客户端连接到服务器
+     * @return
+     */
     public ChannelFuture connect() {
         if (isClosed()) {
             if (logger.isDebugEnabled()) {
@@ -134,6 +155,9 @@ public class Connection extends AbstractReferenceCounted {
         return promise;
     }
 
+    /**
+     * 创建Promise
+     */
     private void createConnectingPromise() {
         if (this.connectingPromise == null) {
             synchronized (this) {
@@ -162,6 +186,10 @@ public class Connection extends AbstractReferenceCounted {
         }
     }
 
+    /**
+     * 假如连接中断，则关闭channel。否则设置channel。
+     * @param channel
+     */
     public void onConnected(Channel channel) {
         if (isClosed()) {
             channel.close();
@@ -181,6 +209,10 @@ public class Connection extends AbstractReferenceCounted {
         }
     }
 
+    /**
+     * 判断连接是否可用
+     * @return
+     */
     public boolean isAvailable() {
         if (isClosed()) {
             return false;

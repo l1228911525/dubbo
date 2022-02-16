@@ -41,11 +41,16 @@ import static org.apache.dubbo.common.constants.CommonConstants.THREAD_NAME_KEY;
 /**
  * AbstractClient
  */
+
+/**
+ * 抽象客户端，
+ */
 public abstract class AbstractClient extends AbstractEndpoint implements Client {
 
     protected static final String CLIENT_THREAD_POOL_NAME = "DubboClientHandler";
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
     private final Lock connectLock = new ReentrantLock();
+    // 失败时，是否需要重连的标志位
     private final boolean needReconnect;
     protected volatile ExecutorService executor;
     private ExecutorRepository executorRepository;
@@ -55,10 +60,11 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         executorRepository = url.getOrDefaultApplicationModel().getExtensionLoader(ExecutorRepository.class).getDefaultExtension();
         // set default needReconnect true when channel is not connected
         needReconnect = url.getParameter(Constants.SEND_RECONNECT_KEY, true);
-
+        // 初始化线程池
         initExecutor(url);
 
         try {
+            // 创建客户端
             doOpen();
         } catch (Throwable t) {
             close();
@@ -69,6 +75,7 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
 
         try {
             // connect.
+            // 客户端连接服务器
             connect();
             if (logger.isInfoEnabled()) {
                 logger.info("Start " + getClass().getSimpleName() + " " + NetUtils.getLocalAddress() + " connect to the server " + getRemoteAddress());
@@ -172,6 +179,12 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         return channel.hasAttribute(key);
     }
 
+    /**
+     * channel发送消息
+     * @param message
+     * @param sent    already sent to socket?
+     * @throws RemotingException
+     */
     @Override
     public void send(Object message, boolean sent) throws RemotingException {
         if (needReconnect && !isConnected()) {

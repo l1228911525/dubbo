@@ -25,6 +25,10 @@ import org.apache.dubbo.remoting.utils.PayloadDropper;
 /**
  * AbstractChannel
  */
+
+/**
+ * 抽象的Channel，拥有在发送信息时，判断通道是否可用的功能
+ */
 public abstract class AbstractChannel extends AbstractPeer implements Channel {
 
     public AbstractChannel(URL url, ChannelHandler handler) {

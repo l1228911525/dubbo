@@ -25,6 +25,10 @@ import io.netty.channel.ChannelHandlerContext;
  *
  * @author guohaoice@gmail.com
  */
+
+/**
+ * 根据传输的数据来判断使用了哪个协议
+ */
 public interface ProtocolDetector {
 
     Result detect(final ChannelHandlerContext ctx, final ByteBuf in);

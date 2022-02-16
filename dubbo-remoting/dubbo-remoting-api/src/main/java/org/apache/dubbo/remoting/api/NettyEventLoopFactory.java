@@ -37,6 +37,9 @@ import static org.apache.dubbo.common.constants.CommonConstants.OS_LINUX_PREFIX;
 import static org.apache.dubbo.common.constants.CommonConstants.OS_NAME_KEY;
 import static org.apache.dubbo.remoting.Constants.NETTY_EPOLL_ENABLE_KEY;
 
+/**
+ * netty线程池的工厂类
+ */
 public class NettyEventLoopFactory {
     /**
      * netty client bootstrap

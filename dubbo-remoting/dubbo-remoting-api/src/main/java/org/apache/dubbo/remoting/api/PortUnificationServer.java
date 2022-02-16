@@ -54,6 +54,10 @@ import static org.apache.dubbo.remoting.Constants.EVENT_LOOP_WORKER_POOL_NAME;
 /**
  * PortUnificationServer.
  */
+
+/**
+ * netty服务器
+ */
 public class PortUnificationServer {
 
     private static final Logger logger = LoggerFactory.getLogger(PortUnificationServer.class);

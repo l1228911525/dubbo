@@ -23,6 +23,9 @@ import org.apache.dubbo.remoting.RemotingException;
 
 import java.util.function.Consumer;
 
+/**
+ * 连接管理
+ */
 @SPI(scope = ExtensionScope.FRAMEWORK)
 public interface ConnectionManager {
 

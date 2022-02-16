@@ -24,6 +24,9 @@ import io.netty.util.internal.PlatformDependent;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
+/**
+ * Connection的管理器，包括了Connection的连接操作
+ */
 public class SingleProtocolConnectionManager implements ConnectionManager {
     public static final String NAME = "single";
 
