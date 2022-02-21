@@ -31,6 +31,10 @@ import java.util.stream.Stream;
  * @see org.apache.dubbo.rpc.Invoker#invoke(Invocation)
  * @see org.apache.dubbo.rpc.RpcInvocation
  */
+
+/**
+ * 远程服务方法的元数据
+ */
 public interface Invocation {
 
     String getTargetServiceUniqueName();

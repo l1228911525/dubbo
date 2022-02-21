@@ -88,6 +88,10 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    /**
+     * 重连
+     * @param channel
+     */
     private void reconnect(Channel channel) {
         if (log.isDebugEnabled()) {
             log.debug(String.format("Connection %s is reconnecting, attempt=%d", connection, 1));

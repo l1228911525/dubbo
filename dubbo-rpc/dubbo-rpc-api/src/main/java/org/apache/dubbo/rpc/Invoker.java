@@ -25,6 +25,11 @@ import org.apache.dubbo.common.Node;
  * @see org.apache.dubbo.rpc.InvokerListener
  * @see org.apache.dubbo.rpc.protocol.AbstractInvoker
  */
+
+/**
+ * 用来远程调用服务的类
+ * @param <T>
+ */
 public interface Invoker<T> extends Node {
 
     /**

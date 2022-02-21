@@ -23,6 +23,11 @@ package org.apache.dubbo.rpc;
  * @see org.apache.dubbo.rpc.ExporterListener
  * @see org.apache.dubbo.rpc.protocol.AbstractExporter
  */
+
+/**
+ * invoker管理器
+ * @param <T>
+ */
 public interface Exporter<T> {
 
     /**

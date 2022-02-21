@@ -381,6 +381,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
         ModuleServiceRepository repository = getScopeModel().getServiceRepository();
+        // serviceDescriptor: 服务描述器，解析<dubbo:service>标签然后将属性封装到ServiceDescriptor
         ServiceDescriptor serviceDescriptor = repository.registerService(getInterfaceClass());
         providerModel = new ProviderModel(getUniqueServiceName(),
             ref,
@@ -388,7 +389,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             this,
             getScopeModel(),
             serviceMetadata);
-
+        // providerModel：服务提供者模型，封装了serviceDescriptor
         repository.registerProvider(providerModel);
 
         List<URL> registryURLs = ConfigValidationUtils.loadRegistries(this, true);
@@ -404,13 +405,14 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     }
 
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
+        // 将配置信息转换称Map的形式
         Map<String, String> map = buildAttributes(protocolConfig);
 
         // remove null key and null value
         map.keySet().removeIf(key -> key == null || map.get(key) == null);
         // init serviceMetadata attachments
         serviceMetadata.getAttachments().putAll(map);
-
+        // 根据Map的信息创建URL
         URL url = buildUrl(protocolConfig, map);
 
         exportUrl(url, registryURLs);
@@ -660,7 +662,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         if (withMetaData) {
             invoker = new DelegateProviderMetaDataInvoker(invoker, this);
         }
+        // 具体的远程暴露服务的方法：创建netty服务器
         Exporter<?> exporter = protocolSPI.export(invoker);
+        // 将其放入本地的Exporters的map中
         exporters.add(exporter);
     }
 

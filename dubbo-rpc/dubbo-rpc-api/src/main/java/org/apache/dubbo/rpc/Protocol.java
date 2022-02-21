@@ -27,6 +27,10 @@ import java.util.List;
 /**
  * Protocol. (API/SPI, Singleton, ThreadSafe)
  */
+
+/**
+ * 协议基础类
+ */
 @SPI(value = "dubbo", scope = ExtensionScope.FRAMEWORK)
 public interface Protocol {
 

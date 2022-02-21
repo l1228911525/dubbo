@@ -58,6 +58,10 @@ import static org.apache.dubbo.rpc.Constants.ACCESS_LOG_KEY;
  * &lt;/logger&gt;
  * </pre></code>
  */
+
+/**
+ * 日志过滤器
+ */
 @Activate(group = PROVIDER, value = ACCESS_LOG_KEY)
 public class AccessLogFilter implements Filter {
 
