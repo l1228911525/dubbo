@@ -54,11 +54,16 @@ public class InvokerInvocationHandler implements InvocationHandler {
     }
 
     @Override
+    /**
+     * 远程调用的方法
+     */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getDeclaringClass() == Object.class) {
             return method.invoke(invoker, args);
         }
+        // 获得方法名
         String methodName = method.getName();
+        // 获得参数
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 0) {
             if ("toString".equals(methodName)) {
@@ -72,13 +77,16 @@ public class InvokerInvocationHandler implements InvocationHandler {
         } else if (parameterTypes.length == 1 && "equals".equals(methodName)) {
             return invoker.equals(args[0]);
         }
+        // 获得类信息，方法class、protocolServiceKey：类名:协议名、参数后封装称RpcInvocation对象
         RpcInvocation rpcInvocation = new RpcInvocation(serviceModel, method, invoker.getInterface().getName(), protocolServiceKey, args);
         String serviceKey = url.getServiceKey();
+        // 将zookeeper里面的key封装到RpcInvocation对象里面
         rpcInvocation.setTargetServiceUniqueName(serviceKey);
 
         // invoker.getUrl() returns consumer url.
         RpcServiceContext.setRpcContext(url);
 
+        // 如果是消费者，则封装ServiceModel和方法信息
         if (serviceModel instanceof ConsumerModel) {
             rpcInvocation.put(Constants.CONSUMER_MODEL, serviceModel);
             rpcInvocation.put(Constants.METHOD_MODEL, ((ConsumerModel) serviceModel).getMethodModel(method));

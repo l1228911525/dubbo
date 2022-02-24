@@ -187,6 +187,7 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
      */
     @Override
     public void send(Object message, boolean sent) throws RemotingException {
+        // 判断是否已经连接了
         if (needReconnect && !isConnected()) {
             connect();
         }
@@ -195,6 +196,7 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         if (channel == null || !channel.isConnected()) {
             throw new RemotingException(this, "message can not send, because channel is closed . url:" + getUrl());
         }
+        // dubbo的channel，用他来发送消息
         channel.send(message, sent);
     }
 

@@ -52,6 +52,7 @@ public class ChannelEventRunnable implements Runnable {
 
     @Override
     public void run() {
+        // 判断是不是接收信息的状态
         if (state == ChannelState.RECEIVED) {
             try {
                 handler.received(channel, message);

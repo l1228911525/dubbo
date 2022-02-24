@@ -151,6 +151,12 @@ final class NettyChannel extends AbstractChannel {
      * @param sent    whether to ack async-sent
      * @throws RemotingException throw RemotingException if wait until timeout or any exception thrown by method body that surrounded by try-catch.
      */
+    /**
+     * 具体的发送方法，使用netty进行发送
+     * @param message
+     * @param sent
+     * @throws RemotingException
+     */
     @Override
     public void send(Object message, boolean sent) throws RemotingException {
         // whether the channel is closed
