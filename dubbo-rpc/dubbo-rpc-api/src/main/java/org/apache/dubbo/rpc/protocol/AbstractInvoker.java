@@ -164,7 +164,7 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
     public String toString() {
         return getInterface() + " -> " + (getUrl() == null ? "" : getUrl().getAddress());
     }
-
+    // 最终Rpc远程调用
     @Override
     public Result invoke(Invocation inv) throws RpcException {
         // if invoker is destroyed due to address refresh from registry, let's allow the current invoke to proceed
@@ -218,6 +218,7 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
     private AsyncRpcResult doInvokeAndReturn(RpcInvocation invocation) {
         AsyncRpcResult asyncResult;
         try {
+            // 这里的doInvoke是调用DubboInvoker的方法
             asyncResult = (AsyncRpcResult) doInvoke(invocation);
         } catch (InvocationTargetException e) {
             Throwable te = e.getTargetException();
@@ -241,6 +242,7 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
             asyncResult = AsyncRpcResult.newDefaultAsyncResult(null, e, invocation);
         }
 
+        // setFutureWhenSync，此参数不太了解是啥意思。第二个条件是如果调用模式不是异步的话，就直接使用future来get响应值。
         if (setFutureWhenSync || invocation.getInvokeMode() != InvokeMode.SYNC) {
             // set server context
             RpcContext.getServiceContext().setFuture(new FutureAdapter<>(asyncResult.getResponseFuture()));

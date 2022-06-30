@@ -27,13 +27,16 @@ import java.util.stream.Stream;
 /**
  * Invocation. (API, Prototype, NonThreadSafe)
  *
+ * 后续netty server接受到了请求之后，一通解析，应该就会知道是要调用什么
+ * 把解析出来的东西句可以放到Invocation里面去
+ *
  * @serial Don't change the class name and package name.
  * @see org.apache.dubbo.rpc.Invoker#invoke(Invocation)
  * @see org.apache.dubbo.rpc.RpcInvocation
  */
 
 /**
- * 远程服务方法的元数据
+ * 远程服务方法的元数据，使用这个对象远程调用provider的方法
  */
 public interface Invocation {
 
@@ -43,6 +46,7 @@ public interface Invocation {
 
     /**
      * get method name.
+     * 方法名
      *
      * @return method name.
      * @serial
@@ -52,6 +56,7 @@ public interface Invocation {
 
     /**
      * get the interface name
+     * 接口名
      *
      * @return
      */
@@ -59,6 +64,7 @@ public interface Invocation {
 
     /**
      * get parameter types.
+     * 参数类型
      *
      * @return parameter types.
      * @serial

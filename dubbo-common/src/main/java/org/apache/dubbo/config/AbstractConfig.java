@@ -604,6 +604,14 @@ public abstract class AbstractConfig implements Serializable {
             assignProperties(this, environment, subProperties, subPropsConfiguration);
 
             // process extra refresh of subclass, e.g. refresh method configs
+
+            // 大家看源码的时候，脑子一定要高度紧张
+            // 上面这段源码到底是他的核心任务是处理什么，preferredPrefix是关键
+            // dubbo.service代表dubbo的一个服务名称的一个固定的前缀，固定拼接的
+            // 中间的org.apache.dubbo.demo，其实是从你的包名里截取出来的，最后加上服务接口的接口名
+            // 很可能，是把这串东西，作为当前这个dubbo服务的全限定的名字
+            // 这段refresh的代码，核心的用意就在于处理出来这个preferredPrefix，其他的配置信息也会一并做一些处理
+
             processExtraRefresh(preferredPrefix, subPropsConfiguration);
 
         } catch (Exception e) {

@@ -86,7 +86,7 @@ public abstract class AbstractCluster implements Cluster {
                 filterInvoker = tmpInvoker;
             }
         }
-
+        // filterInvoker的类型是FilterChainBuilder的内部类ClusterCallbackRegistrationInvoker
         @Override
         public Result invoke(Invocation invocation) throws RpcException {
             return filterInvoker.invoke(invocation);

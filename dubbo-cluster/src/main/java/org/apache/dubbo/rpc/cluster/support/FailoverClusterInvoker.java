@@ -39,7 +39,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.RETRIES_KEY;
 
 /**
  * When invoke fails, log the initial error and retry other invokers (retry n times, which means at most n different invokers will be invoked)
- * Note that retry causes latency.
+ * Note that retry causes latency. 这个ClusterInvoker是重试Invoker，如果Rpc调用失败了，就会重试其他的Invoker。
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Failover">Failover</a>
  *
@@ -72,6 +72,7 @@ public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
                 // check again
                 checkInvokers(copyInvokers, invocation);
             }
+            //利用负载均衡策略loadbalance进行invokers的选择
             Invoker<T> invoker = select(loadbalance, invocation, copyInvokers, invoked);
             invoked.add(invoker);
             RpcContext.getServiceContext().setInvokers((List) invoked);
@@ -113,7 +114,7 @@ public class FailoverClusterInvoker<T> extends AbstractClusterInvoker<T> {
                 + Version.getVersion() + ". Last error is: "
                 + le.getMessage(), le.getCause() != null ? le.getCause() : le);
     }
-
+    // 计算Rpc远程调用的重试次数
     private int calculateInvokeTimes(String methodName) {
         int len = getUrl().getMethodParameter(methodName, RETRIES_KEY, DEFAULT_RETRIES) + 1;
         RpcContext rpcContext = RpcContext.getClientAttachment();

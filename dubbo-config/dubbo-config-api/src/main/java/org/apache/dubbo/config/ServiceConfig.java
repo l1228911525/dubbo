@@ -120,6 +120,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     /**
      * Whether the provider has been exported
+     * 服务是否已经暴露的标志位，可能有并发的问题，需要加volatile标志位
      */
     private transient volatile boolean exported;
 
@@ -209,11 +210,16 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
      * for early init serviceMetadata
      */
     public void init() {
+        // 在一个中间件里面，会大量的运用到JUC的技术，java并发
         if (this.initialized.compareAndSet(false, true)) {
             // load ServiceListeners from extension
             ExtensionLoader<ServiceListener> extensionLoader = this.getExtensionLoader(ServiceListener.class);
             this.serviceListeners.addAll(extensionLoader.getSupportedExtensionInstances());
         }
+        // 初始化你的service metadata， 服务元数据
+        // metadata center, 元数据中心，配合起来来看他
+        // service metadata, 服务实例的元数据，也就是说对服务实例做一个描述的元数据
+        // 最最核心的，就是service他的对应接口，实现类到底是哪个类
         initServiceMetadata(provider);
         serviceMetadata.setServiceType(getInterfaceClass());
         serviceMetadata.setTarget(getRef());
@@ -229,7 +235,11 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             return;
         }
 
-        // ensure start module, compatible with old api usage
+        // prepare for export
+        // dubbo 2.6.x和2.7.x源码我都看过，dubbo 3.0源码变动还是有点大的
+        // ModuleDeployer组件
+        // dubbo服务实例内部必须有很多的代码组件，如果零零散散的去调用、初始化
+        // 初步判定： 对服务实例的启动，做很多的初始化准备工作
         getScopeModel().getDeployer().start();
 
         synchronized (this) {
@@ -238,14 +248,30 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             }
 
             if (!this.isRefreshed()) {
+                // 执行服务实例的刷新操作
                 this.refresh();
             }
             if (this.shouldExport()) {
+                // 自己就会执行服务实例的初始化的工作
                 this.init();
-
+                // dubbo服务实例的延迟发布的特性
+                // 如果设置了dubbo服务实例是延迟发布的，当你调用了export方法之后，会进到这里
+                // 他会延迟你指定的时间之后，再去进行服务的一个发布
                 if (shouldDelay()) {
                     doDelayExport();
                 } else {
+                    // 核心的服务对外发布的源码流程，就在这里
+                    // 到源码里去寻找答案
+                    // 看源码技巧，源码一旦运行过后，控制台就会打印很多的东西出来
+                    // 我们就可以先去分析里面的log日志，通过日志去分析和判断里面到底有什么东西，会做什么
+                    // 反过来再提出问题，带着这些问题，到核心的源码入口里面去，一步一步的寻找答案
+
+                    // 1、export dubbo service动作，发布dubbo服务实例，如何发布，什么叫发布
+                    // 2、register dubbo service，动作，肯定是往zk里面进行注册
+                    // 3、启动netty server，网络连接监听和请求处理，网络通信这块基于netty要能够启动
+                    // 4、服务发现注册相关工作
+                    // 5、MetadataReport：服务实例上报
+                    // 6、关闭jvm的时候，会有一个逆向操作的处理过程
                     doExport();
                 }
             }
@@ -363,6 +389,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         checkAndUpdateSubConfigs();
     }
 
+    /**
+     * 服务暴露具体操作
+     */
     protected synchronized void doExport() {
         if (unexported) {
             throw new IllegalStateException("The service " + interfaceClass.getName() + " has already unexported!");
@@ -374,24 +403,37 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         if (StringUtils.isEmpty(path)) {
             path = interfaceName;
         }
-        doExportUrls();
-        exported();
+        doExportUrls();   // 发布服务
+        exported();       // 服务发布完成了
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
+        // 在这里分析一下这块源码，ScopeModel, 真实的类型叫做ModuleModel
+        // getScopeModel()，再去获取service repository，以及之前也获取过其他的组件
+        // dubbo这里，把他的各个组件，都集中在了scopeModel=ModuleModel，ScopeModel就类似于设计模式里面的门面模式
+        // ScopeModel、ModuleModel、ApplicationModel、FrameworkModel, 多个Model，多个Model组成一个体系，里面包含了一些组件
+
+        // ServiceRepository又是什么东西
+        // ServiceRepository，核心本质是dubbo服务数据存储组件
+        // 一个系统其实是可以发布多个dubbo服务，每个dubbo服务的本质和核心就是一个interface和一个实现类
         ModuleServiceRepository repository = getScopeModel().getServiceRepository();
         // serviceDescriptor: 服务描述器，解析<dubbo:service>标签然后将属性封装到ServiceDescriptor
+        // 把当前要发布的服务注册到dubbo服务数据存储组件里去了，repository
         ServiceDescriptor serviceDescriptor = repository.registerService(getInterfaceClass());
+
+        // 服务提供者，你是暴露服务出去的，provider
         providerModel = new ProviderModel(getUniqueServiceName(),
             ref,
             serviceDescriptor,
             this,
             getScopeModel(),
             serviceMetadata);
-        // providerModel：服务提供者模型，封装了serviceDescriptor
+
+        // 又可以基于Repository组件把provider数据注册进去
         repository.registerProvider(providerModel);
 
+        // 生成的注册URL，本身是2181的端口号，是针对zk进行注册的
         List<URL> registryURLs = ConfigValidationUtils.loadRegistries(this, true);
 
         for (ProtocolConfig protocolConfig : protocols) {
@@ -401,6 +443,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                     .orElse(path), group, version);
             // In case user specified path, register service one more time to map it to path.
             repository.registerService(pathKey, interfaceClass);
+            // 实现服务发布和注册，核心发布流程
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }
     }
@@ -658,14 +701,40 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     // 暴露本地服务的方式：将本地服务的exporter放入本地服务的map中
     private void doExportUrl(URL url, boolean withMetaData) {
-        // 生成代理对象
+        // 生成代理对象，ProxyFactory, Proxy，动态代理
+        // ref，实现类
+        // interfaceClass，接口
+        // url：服务实例对外暴露出去的一些核心的信息
+        // Invoker调用组件，当dubbo的netty server对外网络监听到连接，处理请求，必须要对请求有一个调用组件，可以去调用
+        // ProxyFactory基于我们的DemoService接口生产的动态代理，被调用接口的时候，底层会回调你自己写的实现类，DemoServiceImpl
+
+        // 动态代理技术有很多种，cglib，jdk，动态代理技术如果不理解的话，可以自己去看看
+        // 面向一个接口，动态生成接口的一个实现类，对这个实现类动态生成对应的对象，动态代理的对象
+        // 对象必然会代理自己背后的一个实现类
+        // 当这个对象被调用的时候，背后的实现类其实就会被调用
         Invoker<?> invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, url);
         if (withMetaData) {
             invoker = new DelegateProviderMetaDataInvoker(invoker, this);
         }
         // 具体的远程暴露服务的方法：创建netty服务器
+        // 进行服务发布他的主要源码，其实都是在Protocol里面
+        // 直接调试打进去源码不太好看，但是这个时候往往我们自己要动脑子来进行分析
+
+        // 第一次进行本地发布的时候，看一下Export是什么类型的，第二次远程发布，也可以看一下Export是什么类型的。
+
+        // 设计模式，生搬硬套
+
+        // 初步看一下DubboProtocol，但是当时单单就是看DubboProtocol，感觉看的很迷茫，一堆组件，乱七八糟的运行
+        // RegistryProtocol，里面封装了一个DubboProtocol，RegistryProtocol先执行，先去做服务注册的事情，接着执行DubboProtocol，启动NettyServer作为网络服务器
+        // 这里的服务注册功能就是使用Zookeeper客户端将服务的URL写到Zookeeper服务器中
+        // 还需要开启Netty Server
+        // 使用ProtocolSerializationWrapper进行服务注册，在ProtocolSerializationWrapper里面使用RegistryProtocol进行服务注册，最后使用ZookeeperRegistry进行Zookeeper的注册
+        // 使用DubboProtocol进行NettyServer的开启
+
         Exporter<?> exporter = protocolSPI.export(invoker);
-        // 将其放入本地的Exporters的map中
+        // 通过看Protocol的接口，就可以理解Protocol在干什么
+        // 把invoker搞出去，搞成一个exporter
+        // 后续有请求过来，通过Protocol可以拿到invoker
         exporters.add(exporter);
     }
 
@@ -679,9 +748,14 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 .setHost(LOCALHOST_VALUE)
                 .setPort(0)
                 .build();
+        // 生产一个本地服务的URL
         local = local.setScopeModel(getScopeModel())
             .setServiceModel(providerModel);
+        // 暴露服务
         doExportUrl(local, false);
+        // exportLocal，是什么意思？
+        // 发布到本地，也就是系统自己内部，叫做本地，jvm内部做一次export发布就可以了
+        // 在jvm内部完成了组件之间的一些交互关系和发布
         logger.info("Export dubbo service " + interfaceClass.getName() + " to local registry url : " + local);
     }
 

@@ -61,6 +61,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
         if (url.getParameter(ANYHOST_KEY, false) || NetUtils.isInvalidLocalHost(bindIp)) {
             bindIp = ANYHOST_VALUE;
         }
+        // 封装需要绑定的ip和端口号
         bindAddress = new InetSocketAddress(bindIp, bindPort);
         this.accepts = url.getParameter(ACCEPTS_KEY, DEFAULT_ACCEPTS);
         try {
@@ -73,6 +74,7 @@ public abstract class AbstractServer extends AbstractEndpoint implements Remotin
             throw new RemotingException(url.toInetSocketAddress(), null, "Failed to bind " + getClass().getSimpleName()
                     + " on " + getLocalAddress() + ", cause: " + t.getMessage(), t);
         }
+        // 处理连接、断开连接、业务处理、异常的线程池
         executor = executorRepository.createExecutorIfAbsent(url);
     }
 

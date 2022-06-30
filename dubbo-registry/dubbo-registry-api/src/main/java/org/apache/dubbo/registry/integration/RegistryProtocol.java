@@ -243,7 +243,7 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
         //export invoker
         final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker, providerUrl);
 
-        // url to registry
+        // url to registry 获取Zookeeper服务注册的客户端，ZookeeperServiceDiscovery
         final Registry registry = getRegistry(registryUrl);
         final URL registeredProviderUrl = getUrlToRegistry(providerUrl, registryUrl);
 
@@ -474,6 +474,7 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
     @SuppressWarnings("unchecked")
     public <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException {
         url = getRegistryUrl(url);
+        // zookeeper registry
         Registry registry = getRegistry(url);
         if (RegistryService.class.equals(type)) {
             return proxyFactory.getInvoker((T) registry, type, url);
@@ -488,7 +489,9 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
             }
         }
 
+        // FailoverCluster  故障转移集群
         Cluster cluster = Cluster.getCluster(url.getScopeModel(), qs.get(CLUSTER_KEY));
+        // 利用ZookeeperRegistry和FailoverCluster构建一个MigarationInvoker，里面有MockClusterInvoker、ServiceRegistryInvoker
         return doRefer(cluster, registry, type, url, qs);
     }
 
@@ -561,10 +564,14 @@ public class RegistryProtocol implements Protocol, ScopeModelAware {
             parameters.remove(REGISTER_IP_KEY), 0, getPath(parameters, type), parameters);
         urlToRegistry = urlToRegistry.setScopeModel(directory.getConsumerUrl().getScopeModel());
         urlToRegistry = urlToRegistry.setServiceModel(directory.getConsumerUrl().getServiceModel());
+
+        // 将consumer的信息注册到Zookeeper
         if (directory.isShouldRegister()) {
             directory.setRegisteredConsumerUrl(urlToRegistry);
             registry.register(directory.getRegisteredConsumerUrl());
         }
+
+
         directory.buildRouterChain(urlToRegistry);
         directory.subscribe(toSubscribeUrl(urlToRegistry));
 

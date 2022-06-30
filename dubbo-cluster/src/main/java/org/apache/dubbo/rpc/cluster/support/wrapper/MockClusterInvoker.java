@@ -91,7 +91,7 @@ public class MockClusterInvoker<T> implements ClusterInvoker<T> {
 
         String value = getUrl().getMethodParameter(invocation.getMethodName(), MOCK_KEY, Boolean.FALSE.toString()).trim();
         if (value.length() == 0 || "false".equalsIgnoreCase(value)) {
-            //no mock
+            //no mock，this.invoker的类型是AbstractCluster的内部类ClusterFilterInvoker
             result = this.invoker.invoke(invocation);
         } else if (value.startsWith(FORCE_KEY)) {
             if (logger.isWarnEnabled()) {

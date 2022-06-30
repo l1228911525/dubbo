@@ -96,6 +96,8 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
                 }
             }
 
+            // 还没看到具体的代码，但是doInvoke之后，必然会把你封装的实现类，反射去调用你实现类的方法
+            // sayHello，value就是sayHello方法的一个值
             Object value = doInvoke(proxy, invocation.getMethodName(), invocation.getParameterTypes(), invocation.getArguments());
 
             if (ProfilerSwitch.isEnableSimpleProfiler()) {
@@ -121,6 +123,7 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
                 }
                 return result;
             });
+            // 将sayHello方法返回的值，封装成future，作为一个响应
             return new AsyncRpcResult(appResponseFuture, invocation);
         } catch (InvocationTargetException e) {
             if (RpcContext.getServiceContext().isAsyncStarted() && !RpcContext.getServiceContext().stopAsync()) {

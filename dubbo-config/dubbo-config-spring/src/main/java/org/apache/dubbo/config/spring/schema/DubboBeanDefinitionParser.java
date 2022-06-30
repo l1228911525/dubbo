@@ -91,11 +91,21 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
         this.beanClass = beanClass;
     }
 
+    /**
+     * @param element 当前要解析的标签
+     * @param parserContext 解析上下文
+     * @param beanClass 当前标签解析出来后封装到的类
+     * @param registered 解析出来的标签是否需要注册到注册中心
+     * @return
+     */
     @SuppressWarnings("unchecked")
     private static RootBeanDefinition parse(Element element, ParserContext parserContext, Class<?> beanClass, boolean registered) {
+        // 1.创建并初始化解析对象
         RootBeanDefinition beanDefinition = new RootBeanDefinition();
         beanDefinition.setBeanClass(beanClass);
         beanDefinition.setLazyInit(false);
+
+        // 2.解决 id 问题：为空与重复的问题
         // config id
         String configId = resolveAttribute(element, "id", parserContext);
         if (StringUtils.isNotEmpty(configId)) {
@@ -118,6 +128,7 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
         }
         beanDefinition.setAttribute(BEAN_NAME, beanName);
 
+        // 3.对特殊标签的处理
         if (ProtocolConfig.class.equals(beanClass)) {
 //            for (String name : parserContext.getRegistry().getBeanDefinitionNames()) {
 //                BeanDefinition definition = parserContext.getRegistry().getBeanDefinition(name);
@@ -141,6 +152,7 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
         }
 
 
+        // 4.对普通标签的处理
         Map<String, Class> beanPropTypeMap = beanPropsCache.get(beanClass.getName());
         if (beanPropTypeMap == null) {
             beanPropTypeMap = new HashMap<>();

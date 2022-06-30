@@ -75,6 +75,7 @@ public class ListenerInvokerWrapper<T> implements Invoker<T> {
 
     @Override
     public Result invoke(Invocation invocation) throws RpcException {
+        // 这个invoker的类型是AbstractInvoker
         return invoker.invoke(invocation);
     }
 

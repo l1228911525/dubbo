@@ -17,12 +17,13 @@
 package org.apache.dubbo.demo;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public interface DemoService {
 
-    String sayHello(String name);
+    String sayHello(String name) throws ExecutionException, InterruptedException;
 
-    default CompletableFuture<String> sayHelloAsync(String name) {
+    default CompletableFuture<String> sayHelloAsync(String name) throws ExecutionException, InterruptedException {
         return CompletableFuture.completedFuture(sayHello(name));
     }
 

@@ -46,6 +46,7 @@ import static org.apache.dubbo.rpc.Constants.TOKEN_KEY;
 
 /**
  * RPC Invocation.
+ * Invocation的具体实现
  *
  * @serial Don't change the class name and properties.
  */
@@ -55,13 +56,13 @@ public class RpcInvocation implements Invocation, Serializable {
 
     private String targetServiceUniqueName;
     private String protocolServiceKey;
-
+    // 服务模型
     private ServiceModel serviceModel;
-
+    // 方法名
     private String methodName;
-
+    // 服务名
     private String serviceName;
-
+    // 参数类型
     private transient Class<?>[] parameterTypes;
     private String parameterTypesDesc;
     private String[] compatibleParamSignatures;

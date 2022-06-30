@@ -172,11 +172,18 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
             return;
         }
         // Ensure that the initialization is completed when concurrent calls
+
+        // 这里的源码是什么意思呢，就是你的ApplicationDeployer组件，可能会被多线程并发访问
+        // 不一定说多个线程都是并发在访问你的这个initialize这个方法
+        // 肯定会有一个线程是在执行你的initialize这个方法的，此时可能有别的线程会去访问别的方法
+        // 别的线程访问别的方法，也可以用synchronized（this)加锁，必须被卡住
+        // 等待你的这个线程把initialize过程先执行完毕了再说
         synchronized (startLock) {
             if (initialized.get()) {
                 return;
             }
             // register shutdown hook
+
             registerShutdownHook();
 
             startConfigCenter();

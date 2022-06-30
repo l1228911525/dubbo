@@ -35,6 +35,10 @@ public class CloseTimerTask extends AbstractTimerTask {
         this.idleTimeout = idleTimeout;
     }
 
+    /**
+     * 超过一段时间没有数据，则关闭通道
+     * @param channel
+     */
     @Override
     protected void doTask(Channel channel) {
         try {

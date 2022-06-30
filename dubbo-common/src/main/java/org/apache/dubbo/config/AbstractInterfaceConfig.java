@@ -318,6 +318,10 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
             // Auto create MethodConfig/ArgumentConfig according to config props
             Map<String, String> configProperties = subPropsConfiguration.getProperties();
             Method[] methods = interfaceClass.getMethods();
+
+            // 现在其实是在对你的暴露服务接口进行处理，通过java反射的技术拿到你的接口的class
+            // 以及你的接口Class里面的方法，每个方法其实就是一个当前的服务对外暴露的一个可以调用的小接口
+
             for (Method method : methods) {
                 if (ConfigurationUtils.hasSubProperties(configProperties, method.getName())) {
                     MethodConfig methodConfig = getMethodByName(method.getName());

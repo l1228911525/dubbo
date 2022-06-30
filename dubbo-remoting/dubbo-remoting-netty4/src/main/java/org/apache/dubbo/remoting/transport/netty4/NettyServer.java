@@ -96,9 +96,16 @@ public class NettyServer extends AbstractServer {
      */
     @Override
     protected void doOpen() throws Throwable {
+        // 对于dubbo这种工业级的中间件而言，对于netty的用法，简直可以称之为一个最佳教科书
+        // 首先创建一个ServerBootstrap
         bootstrap = new ServerBootstrap();
 
+        // EventLoop，网络服务器，最核心的是什么？监听一个本地的端口号
+        // 所以外部的系统针对自己本地服务器的端口号发起的所有的连接、通信，网络事件
+        // 监听的端口号会不停的产生网络事件，网络服务器，核心要做的是什么？不停的去loop轮询监听网络事件
+        // boss是什么意思呢？负责对你的端口号监听是否有外部系统的连接请求，可以是一个event loop group，线程
         bossGroup = NettyEventLoopFactory.eventLoopGroup(1, EVENT_LOOP_BOSS_POOL_NAME);
+        // 如果说发现了网络的事件，需要进行请求处理，很多线程并发的进行处理
         workerGroup = NettyEventLoopFactory.eventLoopGroup(
                 getUrl().getPositiveParameter(IO_THREADS_KEY, Constants.DEFAULT_IO_THREADS),
             EVENT_LOOP_WORKER_POOL_NAME);

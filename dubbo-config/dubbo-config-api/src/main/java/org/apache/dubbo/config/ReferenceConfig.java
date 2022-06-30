@@ -280,7 +280,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
         repository.registerConsumer(consumerModel);
 
         serviceMetadata.getAttachments().putAll(referenceParameters);
-
+        // 根据referenceParameters来构建动态代理对象，
         ref = createProxy(referenceParameters);
 
         serviceMetadata.setTarget(ref);
@@ -385,6 +385,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
 
     @SuppressWarnings({"unchecked"})
     private T createProxy(Map<String, String> referenceParameters) {
+        // 如果是Injvm协议，就创建一个LocalInvoker，否则创建一个远程调用的动态代理对象
         if (shouldJvmRefer(referenceParameters)) {
             createInvokerForLocal(referenceParameters);
         } else {
@@ -398,6 +399,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                     aggregateUrlFromRegistry(referenceParameters);
                 }
             }
+            // 创建远程invoker，
             createInvokerForRemote();
         }
 
@@ -412,6 +414,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
         MetadataUtils.publishServiceDefinition(interfaceName, consumerUrl, getScopeModel(), getApplicationModel());
 
         // create service proxy
+        // 基于invoker创建出动态代理
         return (T) proxyFactory.getProxy(invoker, ProtocolUtils.isGeneric(generic));
     }
 
@@ -493,6 +496,8 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
     private void createInvokerForRemote() {
         if (urls.size() == 1) {
             URL curUrl = urls.get(0);
+            // MigrationInvoker, 里面包含了MockClusterInvoker，为什么是Cluster呢，因为每个服务都可以有多个实例，因此可能是一个集群，还有ServiceDiscoveryInvoker、CurrentAvailableInvoker
+            // protocolSPI这个的类型是RegistryProtocol和ProtocolSerializationWrapper
             invoker = protocolSPI.refer(interfaceClass, curUrl);
             if (!UrlUtils.isRegistry(curUrl)){
                 List<Invoker<?>> invokers = new ArrayList<>();

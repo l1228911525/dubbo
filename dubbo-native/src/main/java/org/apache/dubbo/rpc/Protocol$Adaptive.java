@@ -29,6 +29,8 @@ String extName = ( url.getProtocol() == null ? "dubbo" : url.getProtocol() );
 if(extName == null) throw new IllegalStateException("Failed to get extension (org.apache.dubbo.rpc.Protocol) name from url (" + url.toString() + ") use keys([protocol])");
 ScopeModel scopeModel = ScopeModelUtil.getOrDefault(url.getScopeModel(), org.apache.dubbo.rpc.Protocol.class);
 org.apache.dubbo.rpc.Protocol extension = (org.apache.dubbo.rpc.Protocol)scopeModel.getExtensionLoader(org.apache.dubbo.rpc.Protocol.class).getExtension(extName);
+// 很有可能在这里，实际上来说，基于使用的Dubbo协议，会搞到一个DubboProtocol
+    // 然后再通过DubboProtocol，把你的invoker发布出去
 return extension.export(arg0);
 }
 public org.apache.dubbo.rpc.Invoker refer(java.lang.Class arg0, org.apache.dubbo.common.URL arg1) throws org.apache.dubbo.rpc.RpcException {

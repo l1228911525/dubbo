@@ -90,7 +90,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         final String methodName = RpcUtils.getMethodName(invocation);
         inv.setAttachment(PATH_KEY, getUrl().getPath());
         inv.setAttachment(VERSION_KEY, version);
-
+        // currentClient的类型是ReferenceCountExchangeClient
         ExchangeClient currentClient;
         if (clients.length == 1) {
             currentClient = clients[0];
@@ -98,7 +98,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
             currentClient = clients[index.getAndIncrement() % clients.length];
         }
         try {
-            // isOneway是用来判断是不是异步调用的
+            // isOneway是用来判断是不是异步调用的，isOneway代表了有来无回的调用，返回值为null
             boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);
             // 超时时间
             int timeout = calculateTimeout(invocation, methodName);
@@ -106,9 +106,12 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
             if (isOneway) {
                 boolean isSent = getUrl().getMethodParameter(methodName, Constants.SENT_KEY, false);
                 currentClient.send(inv, isSent);
+                // 直接构建一个null值返回
                 return AsyncRpcResult.newDefaultAsyncResult(invocation);
             } else {
+                // 获取执行线程池
                 ExecutorService executor = getCallbackExecutor(getUrl(), inv);
+                // 这里就是使用那个netty客户端发起请求，使用future的特性实现异步请求
                 CompletableFuture<AppResponse> appResponseFuture =
                         currentClient.request(inv, timeout, executor).thenApply(obj -> (AppResponse) obj);
                 // save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter

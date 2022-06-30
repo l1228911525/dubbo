@@ -59,9 +59,11 @@ public class MigrationInvoker<T> implements MigrationClusterInvoker<T> {
     private MigrationRuleListener migrationRuleListener;
     private ConsumerModel consumerModel;
     private FrameworkStatusReportService reportService;
-
+    // 最常使用的invoker
     private volatile ClusterInvoker<T> invoker;
+    // 备选的invoker
     private volatile ClusterInvoker<T> serviceDiscoveryInvoker;
+    // 当前使用的invoker
     private volatile ClusterInvoker<T> currentAvailableInvoker;
     private volatile MigrationStep step;
     private volatile MigrationRule rule;
@@ -277,6 +279,7 @@ public class MigrationInvoker<T> implements MigrationClusterInvoker<T> {
                     return invoker.invoke(invocation);
                 }
             }
+            // currentAvailableInvoker的类型是MockClusterInvoker，调用MockClusterInvoker的invoker方法
             return currentAvailableInvoker.invoke(invocation);
         }
 

@@ -38,6 +38,9 @@ import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
 
 /**
  * InvokerHandler
+ * InvokerInvocationHandler，在consumer的动态代理对象生成的时候，会将这个类生成一个对象放到动态代理对象里面，
+ * 当需要Rpc调用的时候，就运行invoke方法，在InvokerInvocationHandler里，首先会封装RpcInvocation对象，
+ * 然后再传入rpcInvocation对象调用DubboInvoker里的invoke方法
  */
 public class InvokerInvocationHandler implements InvocationHandler {
     private static final Logger logger = LoggerFactory.getLogger(InvokerInvocationHandler.class);
@@ -58,6 +61,12 @@ public class InvokerInvocationHandler implements InvocationHandler {
      * 远程调用的方法
      */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // InvokerInvocationHandler.invoke
+        // 动态代理，就是这个意思，就是针对接口动态的生成这个接口的实现类
+        // 比如说针对DemoService这个接口去生成一个实现类，但是这个实现类是动态生成的，他怎么知道，如果调用他的方法，要如何执行呢？
+        // 动态代理底层都是要封装InvocationHandler，对动态代理的所有方法的调用，都会走到InvocationHandler这里来
+        // 他的invoke方法，就可以拿到，proxy是动态代理的对象，调用的是哪个方法Method，方法传入的是什么参数，args
+        // 当我知道了这些事情之后，对动态代理的不同的方法的调用，具体方法被调用之后，逻辑是如何来处理的？
         if (method.getDeclaringClass() == Object.class) {
             return method.invoke(invoker, args);
         }
@@ -104,6 +113,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
             }
             rpcInvocation.put(Profiler.PROFILER_KEY, bizProfiler);
             try {
+                // invoker是MigrationInvoker类型，调用invoke方法
                 return invoker.invoke(rpcInvocation).recreate();
             } finally {
                 Profiler.release(bizProfiler);
@@ -131,7 +141,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
                 }
             }
         }
-
+        // 这个invoker就是MigrationInvoker, currentAvailableInvoker就是MockClusterInvoker，在MockClusterInvoker里面正式进行RPC调用
         return invoker.invoke(rpcInvocation).recreate();
     }
 }

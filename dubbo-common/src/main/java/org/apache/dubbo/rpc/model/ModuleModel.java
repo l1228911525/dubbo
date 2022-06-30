@@ -38,10 +38,13 @@ public class ModuleModel extends ScopeModel {
 
     public static final String NAME = "ModuleModel";
 
+    // ApplicationModel，推断是否也是属于一个子门面组件，内部是否也封装了其他的很多组件
     private final ApplicationModel applicationModel;
     private ModuleEnvironment moduleEnvironment;
+    // 属于一个关键性的组件，服务仓储
     private ModuleServiceRepository serviceRepository;
     private ModuleConfigManager moduleConfigManager;
+    // module deployer组件
     private ModuleDeployer deployer;
 
     public ModuleModel(ApplicationModel applicationModel) {

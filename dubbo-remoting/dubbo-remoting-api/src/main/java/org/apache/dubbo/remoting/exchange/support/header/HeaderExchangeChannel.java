@@ -45,6 +45,7 @@ final class HeaderExchangeChannel implements ExchangeChannel {
 
     private static final String CHANNEL_KEY = HeaderExchangeChannel.class.getName() + ".CHANNEL";
 
+    // 传输数据的通道
     private final Channel channel;
 
     private volatile boolean closed = false;

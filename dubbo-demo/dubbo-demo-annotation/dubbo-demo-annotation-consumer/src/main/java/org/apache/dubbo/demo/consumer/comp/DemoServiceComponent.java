@@ -16,21 +16,30 @@
  */
 package org.apache.dubbo.demo.consumer.comp;
 
+import net.bytebuddy.asm.Advice;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.demo.DemoService;
 
+import org.apache.dubbo.rpc.RpcContext;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Component("demoServiceComponent")
 public class DemoServiceComponent implements DemoService {
-    @DubboReference
+    @DubboReference(async = true)
     private DemoService demoService;
 
     @Override
-    public String sayHello(String name) {
-        return demoService.sayHello(name);
+    public String sayHello(String name) throws ExecutionException, InterruptedException {
+        String result = demoService.sayHello(name);
+        System.out.println("result = " + result);
+        CompletableFuture<String> completableFuture = RpcContext.getContext().getCompletableFuture();
+        String s = completableFuture.get();
+
+        System.out.println("s = " + s);
+        return s;
     }
 
     @Override

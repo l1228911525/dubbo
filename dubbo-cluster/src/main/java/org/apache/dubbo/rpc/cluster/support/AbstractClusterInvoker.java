@@ -171,7 +171,7 @@ public abstract class AbstractClusterInvoker<T> implements ClusterInvoker<T> {
                 return stickyInvoker;
             }
         }
-
+        // 利用负载均衡策略loadbalance进行invokers的选择
         Invoker<T> invoker = doSelect(loadbalance, invocation, invokers, selected);
 
         if (sticky) {
@@ -329,6 +329,7 @@ public abstract class AbstractClusterInvoker<T> implements ClusterInvoker<T> {
 //        }
 
         InvocationProfilerUtils.enterDetailProfiler(invocation, () -> "Router route.");
+        // 使用DynamicDirectory.list来实现服务发现的功能，invoker是服务实例的集群
         List<Invoker<T>> invokers = list(invocation);
         InvocationProfilerUtils.releaseDetailProfiler(invocation);
 
@@ -337,6 +338,7 @@ public abstract class AbstractClusterInvoker<T> implements ClusterInvoker<T> {
 
         InvocationProfilerUtils.enterDetailProfiler(invocation, () -> "Cluster " + this.getClass().getName() + " invoke.");
         try {
+            // 使用服务集群的invokers和负载均衡策略进行Rpc调用，这个doInvoke是FailoverClusterInvoker的方法
             return doInvoke(invocation, invokers, loadbalance);
         } finally {
             InvocationProfilerUtils.releaseDetailProfiler(invocation);
@@ -375,6 +377,7 @@ public abstract class AbstractClusterInvoker<T> implements ClusterInvoker<T> {
             if (ProfilerSwitch.isEnableSimpleProfiler()) {
                 InvocationProfilerUtils.enterProfiler(invocation, "Invoker invoke. Target Address: " + invoker.getUrl().getAddress());
             }
+            // 这个invoker的类型是ListenerInvokerWrapper
             result = invoker.invoke(invocation);
         } finally {
             clearContext(invoker);

@@ -1,0 +1,2 @@
+division=org.apache.dubbo.demo.dubbospi.impl.DivisionOperation
+plus=org.apache.dubbo.demo.dubbospi.impl.PlusOperation
